@@ -1,0 +1,19 @@
+.rendu {
+    color:lightgreen;
+    border:2px solid green;
+}
+
+.nonRendu {
+    color:lightcoral;
+    border:2px solid red;
+}
+
+.important {
+    font-weight: bold;
+}
+
+.form {
+   display:flex;
+   flex-direction: column;
+   margin:5px;
+}
