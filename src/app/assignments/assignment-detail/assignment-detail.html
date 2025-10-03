@@ -1,1 +1,22 @@
-<p>assignment-detail works! FILS !!!!</p>
+@if(assignmentTransmis) {
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>Details de l'assignment</mat-card-title>
+    <mat-card-subtitle>On pourra ajouter image etc.</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      Cet assignment a pour nom : {{assignmentTransmis.nom}} <br>
+      et pour date de rendu :
+      {{assignmentTransmis.dateDeRendu | date:'dd/MM/yyyy'}} <br>
+      Blah Blah Blah......
+    </p>
+  </mat-card-content>
+  <mat-card-actions class="actions">
+    @if(!assignmentTransmis.rendu) {
+      <mat-checkbox (click)="onAssignmentRendu()">Rendu</mat-checkbox>
+    }
+    <button mat-raised-button color="primary" (click)="onDeleteAssignment()">DELETE</button>
+  </mat-card-actions>
+</mat-card>
+}

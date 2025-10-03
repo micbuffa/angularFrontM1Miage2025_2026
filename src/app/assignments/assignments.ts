@@ -1,38 +1,34 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
-import {MatDatepickerModule} from '@angular/material/datepicker';
+
+import { MatListModule } from '@angular/material/list';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import { AssignmentDetail } from './assignment-detail/assignment-detail';
 
 
-import { FormsModule } from '@angular/forms';
 
 import { DatePipe } from '@angular/common';
 import { Rendu } from "../shared/rendu";
 import { NonRendu } from "../shared/nonRendu";
 
 import { Assignment } from './assignment.model';
+import { AddAssignment } from "./add-assignment/add-assignment";
 
 @Component({
   selector: 'app-assignments',
   imports: [MatDividerModule, DatePipe, Rendu, NonRendu,
-    MatFormFieldModule, MatInputModule, FormsModule, MatButtonModule,
-    MatDatepickerModule, AssignmentDetail
-  ],
+    MatButtonModule, AssignmentDetail, MatListModule, AddAssignment],
   providers: [provideNativeDateAdapter()],
   templateUrl: './assignments.html',
   styleUrl: './assignments.css'
 })
 export class Assignments implements OnInit {
   boutonActive = false;
+  formVisible = false;
 
-  // Pour le formulaire, une variable par champ
-  nomAssignment = "";
-  dateDeRendu!: Date;
-
+  // Pour la sélection
+  assignmentSelectionne?: Assignment;
 
   constructor() { }
 
@@ -70,19 +66,31 @@ ngOnInit() {
     }
   }
 
-  onAjouterAssignment(event:any) {
-    console.log("Ajout NOM = " + this.nomAssignment + " date = " + this.dateDeRendu);
-    
-    // On crée un nouvel assignment
-    const nouvelAssignment: Assignment = new Assignment();
-    nouvelAssignment.nom = this.nomAssignment;
-    nouvelAssignment.dateDeRendu = this.dateDeRendu;
-    nouvelAssignment.rendu = false; // Par défaut, il n'est pas rendu
+  
+  assignmentClique(assignment: Assignment) {
+    console.log("Assignment cliqué : " + assignment.nom);
+    this.assignmentSelectionne = assignment
+  }
 
-    console.log(nouvelAssignment);
+  onAddAssignmentBtnClick() {
+    console.log("onAddAssignmentBtnClick");
+    this.formVisible = true;
+  }
 
-    // On l'ajoute à la liste
+  onNouvelAssignment(nouvelAssignment: Assignment) {
     this.assignments.push(nouvelAssignment);
+    this.formVisible = false;
+  }
 
+  onDeleteAssignment(assignmentToDelete:Assignment) {
+    // On va supprimer l'assignment reçu du tableau des assignments
+    
+    // index de l'assignment à supprimer dans le tableau des assignments
+    // il existe forcément puisque c'est un assignment qu'on a sélectionné
+    // à la souris dans la liste affichée...
+    let pos = this.assignments.indexOf(assignmentToDelete);
+    // En JS/TS, pour supprimer un élément d'un tableau oh utilise
+    // la méthode splice(index, nbElementsASupprimer)
+    this.assignments.splice(pos, 1);
   }
 }
