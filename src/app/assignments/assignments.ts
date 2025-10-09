@@ -3,7 +3,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 
 import { MatListModule } from '@angular/material/list';
-import {provideNativeDateAdapter} from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { AssignmentDetail } from './assignment-detail/assignment-detail';
 
 
@@ -14,6 +14,7 @@ import { NonRendu } from "../shared/nonRendu";
 
 import { Assignment } from './assignment.model';
 import { AddAssignment } from "./add-assignment/add-assignment";
+import { AssignmentsService } from '../shared/assignments.service';
 
 @Component({
   selector: 'app-assignments',
@@ -30,33 +31,22 @@ export class Assignments implements OnInit {
   // Pour la sélection
   assignmentSelectionne?: Assignment;
 
-  constructor() { }
+  constructor(private assignmentsService: AssignmentsService) { }
 
-  assignments:Assignment[] = [
-    {
-      nom: 'Devoir Angular de Buffa',
-      dateDeRendu: new Date('2025-09-10'),
-      rendu: true
-    },
-    {
-      nom: 'Devoir Java de Mallet',
-      dateDeRendu: new Date('2025-09-15'),
-      rendu: false
-    },
-    {
-      nom: 'Devoir Réseaux de Durand',
-      dateDeRendu: new Date('2026-01-20'),
-      rendu: false
-    }
-  ];
-  
-ngOnInit() {
-  console.log("ngOnInit appelé");
-  // Activer le bouton après 3 secondes
-  setTimeout(() => {
-    this.boutonActive = true;
-  }, 3000);
-}
+  assignments: Assignment[] = [];
+
+  ngOnInit() {
+    console.log("ngOnInit appelé avant l'affichage du composant");
+    console.log("Appel du service pour récupérer les données");
+
+    this.assignmentsService.getAssignments()
+      .subscribe(assignments => {
+        // Les données asynchrones sont arrivées, on les affecte
+        // à la propriété assignments du composant
+        this.assignments = assignments;
+        console.log("Données reçues");
+      });
+  }
 
   getColor(assignment: any) {
     if (assignment.rendu) {
@@ -66,7 +56,7 @@ ngOnInit() {
     }
   }
 
-  
+
   assignmentClique(assignment: Assignment) {
     console.log("Assignment cliqué : " + assignment.nom);
     this.assignmentSelectionne = assignment
@@ -75,22 +65,30 @@ ngOnInit() {
   onAddAssignmentBtnClick() {
     console.log("onAddAssignmentBtnClick");
     this.formVisible = true;
+
   }
 
   onNouvelAssignment(nouvelAssignment: Assignment) {
-    this.assignments.push(nouvelAssignment);
-    this.formVisible = false;
+
+    // on demande au service de l'ajouter
+    this.assignmentsService.addAssignment(nouvelAssignment)
+      .subscribe(message => {
+        console.log("Assignment ajouté avec succès");
+
+        // On fait ça dans le subscribe car on doit être sûr que
+        // l'ajout est fait côté service avant de mettre à jour
+        // la liste côté composant
+        // On cache le formulaire
+        this.formVisible = false;
+
+      });
   }
 
-  onDeleteAssignment(assignmentToDelete:Assignment) {
+  onDeleteAssignment(assignmentToDelete: Assignment) {
     // On va supprimer l'assignment reçu du tableau des assignments
-    
-    // index de l'assignment à supprimer dans le tableau des assignments
-    // il existe forcément puisque c'est un assignment qu'on a sélectionné
-    // à la souris dans la liste affichée...
-    let pos = this.assignments.indexOf(assignmentToDelete);
-    // En JS/TS, pour supprimer un élément d'un tableau oh utilise
-    // la méthode splice(index, nbElementsASupprimer)
-    this.assignments.splice(pos, 1);
+    this.assignmentsService.deleteAssignment(assignmentToDelete)
+      .subscribe(message => {
+        console.log("Assignment supprimé avec succès");
+      });
   }
 }
